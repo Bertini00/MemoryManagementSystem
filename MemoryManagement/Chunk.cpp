@@ -26,6 +26,14 @@ void* Chunk::Allocate(size_t blockSize) {
 }
 
 void Chunk::Deallocate(void* p, size_t blockSize) {
-	
+	unsigned char *deallocatedPointer = (unsigned char*)p;
+
+	unsigned char fab = (deallocatedPointer - pData_) / blockSize;
+
+	*deallocatedPointer = firstAvailableBlock_;
+
+	firstAvailableBlock_ = fab;
+
+
 	return;
 }

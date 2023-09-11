@@ -16,9 +16,17 @@ void main() {
 	int* p2 = (int*)chunk->Allocate(sizeof(int));
 	*p2 = 231;
 
-	chunk->Deallocate(p1, sizeof(p1));
+	chunk->Deallocate(p1, sizeof(int));
 
 	int* p3 = (int*)chunk->Allocate(sizeof(int));
 	*p3 = 639;
 
+	int* p4 = (int*)chunk->Allocate(sizeof(int));
+	*p4 = 9287;
+
+	chunk->Deallocate(p3, sizeof(int));
+	chunk->Deallocate(p2, sizeof(int));
+	chunk->Deallocate(p4, sizeof(int));
+
+	delete chunk;
 }
