@@ -2,19 +2,22 @@
 #include <vector>
 #include "Chunk.h"
 
-class FixedAllocator 
+class FixedAllocator
 {
 
 public:
+	FixedAllocator(size_t blockSize, unsigned char numBlocks);
+
 	void* Allocate();
+	void Deallocate(void* p);
 
-private: 
-	size_t blockSize_; 
-	unsigned char numBlocks_; 
+private:
+	size_t blockSize_;
+	unsigned char numBlocks_;
 
-	typedef std::vector<Chunk> Chunks; 
+	typedef std::vector<Chunk> Chunks;
 
-	Chunks chunks_; 
-	Chunk* allocChunk_; 
-	Chunk* deallocChunk_; 
+	Chunks chunks_;
+	Chunk* allocChunk_;
+	Chunk* deallocChunk_;
 };
