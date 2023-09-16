@@ -45,10 +45,39 @@ void FixedAllocator::Deallocate(void* p) {
 	else
 	{
 		// Start from deallocChunk and go both ways
-		/*
-			Problem:
-			We either linear search until we find the deallocChunk and then we go both ways (possible but slower)
-			Or we find a way to get an iterator to the deallocChunk in constant time (don't know if possible but faster)
-		*/
+		// Pointer Before and Pointer After
+		Chunk* pb, * pa;
+		pb = deallocChunk_ - 1;
+		pa = deallocChunk_ + 1;
+
+		// Keep checking until we reach the end of the vector in both sides
+		while (pb != &*chunks_.begin() && pa != &*chunks_.end())
+		{
+			// Check if the chunk before is the correct chunk
+			if (pb->pData_ - deallocChunk_->pData_ >= 0 && pb->pData_ - deallocChunk_->pData_ <= blockSize_ * numBlocks_)
+			{
+				// If so, call the deallocation of the chunk before
+				deallocChunk_->Deallocate(pb->pData_, blockSize_);
+				return;
+			}
+			// Check if the chunk after is the correct chunk
+			else if (pa->pData_ - deallocChunk_->pData_ >= 0 && pa->pData_ - deallocChunk_->pData_ <= blockSize_ * numBlocks_)
+			{
+				// If so, call the deallocation of the chunk after
+				deallocChunk_->Deallocate(pa->pData_, blockSize_);
+				return;
+			}
+
+			// Decrement pointer if begin of vector hasn't been reached yet
+			if (pb != &*chunks_.begin())
+			{
+				--pb;
+			}
+			// Increment pointer if end of vector hasn't been reached yet
+			if (pa != &*chunks_.end())
+			{
+				++pa;
+			}
+		}
 	}
 }
