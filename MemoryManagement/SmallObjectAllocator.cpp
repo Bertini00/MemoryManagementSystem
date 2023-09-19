@@ -2,7 +2,7 @@
 #include <algorithm>
 
 
-SmallObjectAllocator::SmallObjectAllocator(std::size_t chunkSize, std::size_t maxObjectSize):chunkSize_(chunkSize), maxObjectSize_(maxObjectSize)
+SmallObjectAllocator::SmallObjectAllocator(unsigned char chunkSize, std::size_t maxObjectSize):chunkSize_(chunkSize), maxObjectSize_(maxObjectSize)
 {
 }
 

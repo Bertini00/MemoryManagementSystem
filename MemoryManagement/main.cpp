@@ -13,21 +13,33 @@
 void ChunkTest();
 void FixedAllocatorTest();
 void SmallObjectAllocatorTest();
+void MemoryManagerTest();
 
 void main() {
 
 
-	SmallObjectAllocatorTest();
+	//SmallObjectAllocatorTest();
 	//FixedAllocatorTest();
 
-	FixedAllocatorTest();
-	int* prova = MM_NEW(int);
+	//FixedAllocatorTest();
 
+	MemoryManagerTest();
 }
 
 
 
+void MemoryManagerTest()
+{
+	MemoryManager::Init(255, 32);
 
+	int* p1 = MM_NEW(int);
+	MM_DELETE(int, p1);
+
+	float* p2 = (float*)MM_MALLOC(sizeof(float));
+	MM_FREE(p2, sizeof(float));
+
+	MemoryManager::Free();
+}
 
 void ChunkTest() {
 	std::cout << sizeof(int) << std::endl;

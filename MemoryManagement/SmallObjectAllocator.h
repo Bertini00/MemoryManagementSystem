@@ -8,12 +8,12 @@ class SmallObjectAllocator
 {
 public:
 
-	SmallObjectAllocator(std::size_t chunkSize, std::size_t maxObjectSize); 
+	SmallObjectAllocator(unsigned char chunkSize, std::size_t maxObjectSize); 
 	void* Allocate(std::size_t numBytes); 
 	void Deallocate(void* p, std::size_t size);
 
 private:
-	size_t chunkSize_;
+	unsigned char chunkSize_;
 	size_t maxObjectSize_;
 
 
