@@ -2,6 +2,10 @@
 #include "FixedAllocator.h"
 #include <iostream>
 
+#ifndef globalOverride
+#define globalOverride
+#endif // !globalOverride
+
 void ChunkTest();
 void FixedAllocatorTest();
 
