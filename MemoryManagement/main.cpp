@@ -1,7 +1,14 @@
 #include "Chunk.h"
 #include "FixedAllocator.h"
 #include "SmallObjectAllocator.h"
+
+#include "MM_MemoryManager.hpp"
+
 #include <iostream>
+
+#ifndef globalOverride
+#define globalOverride
+#endif // !globalOverride
 
 void ChunkTest();
 void FixedAllocatorTest();
@@ -9,8 +16,13 @@ void SmallObjectAllocatorTest();
 
 void main() {
 
+
 	SmallObjectAllocatorTest();
 	//FixedAllocatorTest();
+
+	FixedAllocatorTest();
+	int* prova = MM_NEW(int);
+
 }
 
 

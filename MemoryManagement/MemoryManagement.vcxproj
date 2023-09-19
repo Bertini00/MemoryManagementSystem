@@ -129,13 +129,22 @@
   <ItemGroup>
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="FixedAllocator.h" />
+
     <ClInclude Include="SmallObjectAllocator.h" />
+
+    <ClInclude Include="MM_GlobalOverload.h" />
+    <ClInclude Include="MM_MemoryManager.h" />
+
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="FixedAllocator.cpp" />
     <ClCompile Include="main.cpp" />
+
     <ClCompile Include="SmallObjectAllocator.cpp" />
+
+    <ClCompile Include="MM_GlobalOverload.cpp" />
+
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
