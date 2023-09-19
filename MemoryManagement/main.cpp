@@ -1,5 +1,6 @@
 #include "Chunk.h"
 #include "FixedAllocator.h"
+#include "MM_MemoryManager.hpp"
 #include <iostream>
 
 void ChunkTest();
@@ -8,7 +9,7 @@ void FixedAllocatorTest();
 void main() {
 
 	FixedAllocatorTest();
-
+	int* prova = MM_NEW(int);
 }
 
 
