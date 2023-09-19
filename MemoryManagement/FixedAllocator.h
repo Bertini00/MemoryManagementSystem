@@ -11,6 +11,8 @@ public:
 	void* Allocate();
 	void Deallocate(void* p);
 
+	size_t GetBlockSize();
+
 private:
 	size_t blockSize_;
 	unsigned char numBlocks_;

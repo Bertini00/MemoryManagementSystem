@@ -1,6 +1,9 @@
 #include "Chunk.h"
 #include "FixedAllocator.h"
+#include "SmallObjectAllocator.h"
+
 #include "MM_MemoryManager.hpp"
+
 #include <iostream>
 
 #ifndef globalOverride
@@ -9,11 +12,17 @@
 
 void ChunkTest();
 void FixedAllocatorTest();
+void SmallObjectAllocatorTest();
 
 void main() {
 
+
+	SmallObjectAllocatorTest();
+	//FixedAllocatorTest();
+
 	FixedAllocatorTest();
 	int* prova = MM_NEW(int);
+
 }
 
 
@@ -47,10 +56,32 @@ void ChunkTest() {
 void FixedAllocatorTest() {
 	FixedAllocator fa = FixedAllocator(sizeof(int), 2);
 
+	
+
 	int* p1 = (int*)fa.Allocate();
 	int* p2 = (int*)fa.Allocate();
 	int* p3 = (int*)fa.Allocate();
 
 	fa.Deallocate(p1);
+	fa.Deallocate(p3);
 	int* p4 = (int*)fa.Allocate();
+}
+
+void SmallObjectAllocatorTest() {
+	SmallObjectAllocator sa = SmallObjectAllocator(2, 32);
+
+	int* p1 = (int*)sa.Allocate(sizeof(int));
+	*p1 = 12341;
+	int* p2 = (int*)sa.Allocate(sizeof(int));
+	*p2 = 81721;
+
+	int* p3 = (int*)sa.Allocate(sizeof(int));
+	char* p4 = (char*)sa.Allocate(sizeof(char));
+	char* p5 = (char*)sa.Allocate(sizeof(char));
+	char* p6 = (char*)sa.Allocate(sizeof(char));
+
+	sa.Deallocate(p1, sizeof(int));
+	sa.Deallocate(p2, sizeof(int));
+	sa.Deallocate(p5, sizeof(char));
+	sa.Deallocate(p6, sizeof(char));
 }
