@@ -30,13 +30,13 @@ public:
 	template<class T>
 	static T* MM_New()
 	{
-
+		return nullptr;
 	}
 
 	template<class T>
 	static T* MM_New_A()
 	{
-
+		return nullptr;
 	}
 
 	/*
@@ -59,7 +59,7 @@ public:
 	*/
 	static void* MM_Malloc(std::size_t size)
 	{
-
+		return nullptr;
 	}
 
 	/*
