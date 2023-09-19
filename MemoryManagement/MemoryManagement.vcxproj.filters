@@ -21,6 +21,9 @@
     <ClInclude Include="FixedAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MM_GlobalOverload.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Chunk.cpp">
@@ -30,6 +33,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FixedAllocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MM_GlobalOverload.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
