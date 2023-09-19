@@ -37,7 +37,7 @@ void FixedAllocator::Deallocate(void* p) {
 	unsigned char* deallocateP = (unsigned char*)p;
 
 	// If the pointer is in the current chunk
-	if (deallocateP - deallocChunk_->pData_ >= 0 && deallocateP - deallocChunk_->pData_ <= blockSize_ * numBlocks_)
+	if (deallocChunk_->pData_ - deallocateP >= 0 && deallocateP <= deallocChunk_->pData_ + blockSize_ * numBlocks_)
 	{
 		// Delegate the deallocation to the chunk with the correct block size
 		deallocChunk_->Deallocate(deallocateP, blockSize_);
@@ -47,37 +47,49 @@ void FixedAllocator::Deallocate(void* p) {
 		// Start from deallocChunk and go both ways
 		// Pointer Before and Pointer After
 		Chunk* pb, * pa;
-		pb = deallocChunk_ - 1;
-		pa = deallocChunk_ + 1;
+
+		// Check if dealloc chunk is already at the limit of the vector, 
+		pb = deallocChunk_;
+		pa = deallocChunk_;
 
 		// Keep checking until we reach the end of the vector in both sides
-		while (pb != &*chunks_.begin() && pa != &*chunks_.end())
+		while (pb != &chunks_.front() || pa != &chunks_.back())
 		{
-			// Check if the chunk before is the correct chunk
-			if (pb->pData_ - deallocChunk_->pData_ >= 0 && pb->pData_ - deallocChunk_->pData_ <= blockSize_ * numBlocks_)
-			{
-				// If so, call the deallocation of the chunk before
-				deallocChunk_->Deallocate(pb->pData_, blockSize_);
-				return;
-			}
-			// Check if the chunk after is the correct chunk
-			else if (pa->pData_ - deallocChunk_->pData_ >= 0 && pa->pData_ - deallocChunk_->pData_ <= blockSize_ * numBlocks_)
-			{
-				// If so, call the deallocation of the chunk after
-				deallocChunk_->Deallocate(pa->pData_, blockSize_);
-				return;
-			}
-
 			// Decrement pointer if begin of vector hasn't been reached yet
-			if (pb != &*chunks_.begin())
+			if (pb != &chunks_.front())
 			{
 				--pb;
 			}
 			// Increment pointer if end of vector hasn't been reached yet
-			if (pa != &*chunks_.end())
+			if (pa != &chunks_.back())
 			{
 				++pa;
 			}
+			// Check if the chunk before is the correct chunk
+			
+			if (pb->pData_ - deallocateP >= 0 && deallocateP <= pb->pData_ + blockSize_ * numBlocks_)
+			{
+				// If so, call the deallocation of the chunk before
+				pb->Deallocate(deallocateP, blockSize_);
+				deallocChunk_ = pb;
+				return;
+			}
+			// Check if the chunk after is the correct chunk
+			else if (pa->pData_ - deallocateP >= 0 && deallocateP <= pa->pData_ + blockSize_ * numBlocks_)
+			{
+				// If so, call the deallocation of the chunk after
+				pa->Deallocate(deallocateP, blockSize_);
+				deallocChunk_ = pa;
+				return;
+			}
+
+			
 		}
 	}
+}
+
+
+size_t FixedAllocator::GetBlockSize() {
+	// Return the block size of the Fixed Allocator
+	return blockSize_;
 }
