@@ -37,7 +37,7 @@ void FixedAllocator::Deallocate(void* p) {
 	unsigned char* deallocateP = (unsigned char*)p;
 
 	// If the pointer is in the current chunk
-	if (deallocChunk_->pData_ - deallocateP >= 0 && deallocateP <= deallocChunk_->pData_ + blockSize_ * numBlocks_)
+	if (deallocateP - deallocChunk_->pData_ >= 0 && deallocateP <= deallocChunk_->pData_ + blockSize_ * numBlocks_)
 	{
 		// Delegate the deallocation to the chunk with the correct block size
 		deallocChunk_->Deallocate(deallocateP, blockSize_);
@@ -67,7 +67,7 @@ void FixedAllocator::Deallocate(void* p) {
 			}
 			// Check if the chunk before is the correct chunk
 			
-			if (pb->pData_ - deallocateP >= 0 && deallocateP <= pb->pData_ + blockSize_ * numBlocks_)
+			if (deallocateP - pb->pData_ >= 0 && deallocateP <= pb->pData_ + blockSize_ * numBlocks_)
 			{
 				// If so, call the deallocation of the chunk before
 				pb->Deallocate(deallocateP, blockSize_);
