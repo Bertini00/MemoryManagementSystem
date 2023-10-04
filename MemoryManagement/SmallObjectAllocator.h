@@ -4,6 +4,11 @@
 #include "FixedAllocator.h"
 
 
+/*
+	Small Object Allocator handles up to 16 bytes (to be decided yet) then it delegates the new to the Big Object Allocator
+	Each allocation in the SOA creates the corresponding fixed allocator with that size (array of 3 int creates a fixed of 12 bytes)
+*/
+
 class SmallObjectAllocator
 {
 public:
