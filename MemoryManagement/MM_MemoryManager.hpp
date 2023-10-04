@@ -7,11 +7,11 @@
 
 #define MM_NEW(T) MemoryManager::MM_New<T>();
 
-#define MM_NEW_A(T) MemoryManager::MM_New_A<T>();
+#define MM_NEW_A(T, length) MemoryManager::MM_New_A<T>(length);
 
 #define MM_DELETE(T, pointer) MemoryManager::MM_Delete<T>(pointer);
 
-#define MM_DELETE_A(T) MemoryManager::MM_Delete_A<T>();
+#define MM_DELETE_A(T, pointer) MemoryManager::MM_Delete_A<T>(pointer);
 
 #define MM_MALLOC(size) MemoryManager::MM_Malloc(size);
 
@@ -74,10 +74,30 @@ public:
 		return newPtr;
 	}
 
-	template<class T>
-	static T* MM_New_A()
+	/*
+	@brief
+	Class-specific array allocation and constructor call, using small object allocator
+	@param length: the length of the array to allocate
+	*/
+	template<class NewType>
+	static NewType* MM_New_A(char length)
 	{
-		return nullptr;
+		// allocation
+		NewType* newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType) * length + 1);
+
+		// write length at the beginning of the pointer
+		*(char*)newPtr = length;
+
+		// take pointer to return
+		newPtr = (NewType*)((char*)newPtr + 1);
+
+		// construction call for each object
+		for (char i = 0; i < length; ++i)
+		{
+			newPtr[i] = NewType();
+		}
+
+		return newPtr;
 	}
 
 	/*
@@ -95,10 +115,28 @@ public:
 		small_obj_alloc->Deallocate(pointer, sizeof(DeleteType));
 	}
 
-	template<class T>
-	static void MM_Delete_A(T* pointer)
+	/*
+	@brief
+	Class-specific array deallocation and destructor call, using small object allocator
+	@param pointer: the array pointer to deallocate
+	*/
+	template<class DeleteType>
+	static void MM_Delete_A(DeleteType* pointer)
 	{
+		// take length
+		char length = *((char*)pointer - 1);
 
+		// destruction
+		for (char i = 0; i < length; ++i)
+		{
+			pointer[i].~DeleteType();
+		}
+
+		// take real pointer to allocation
+		pointer = (DeleteType*)((char*)pointer - 1);
+
+		// deallocation
+		small_obj_alloc->Deallocate(pointer, sizeof(DeleteType) + 1);
 	}
 
 	/*
