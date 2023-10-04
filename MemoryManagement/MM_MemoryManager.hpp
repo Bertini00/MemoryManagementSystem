@@ -136,7 +136,7 @@ public:
 		pointer = (DeleteType*)((char*)pointer - 1);
 
 		// deallocation
-		small_obj_alloc->Deallocate(pointer, sizeof(DeleteType) + 1);
+		small_obj_alloc->Deallocate(pointer, sizeof(DeleteType) * length + 1);
 	}
 
 	/*
