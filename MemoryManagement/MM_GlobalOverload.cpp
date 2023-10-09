@@ -6,6 +6,8 @@
 #if globalOverload
 void* operator new(size_t size)
 {
+    //https://www.geeksforgeeks.org/overloading-new-delete-operator-c/
+    // this code should be ok even for [] operator
     //global code here
     std::cout << "New operator overloading " << std::endl;
     void* p = malloc(size);
