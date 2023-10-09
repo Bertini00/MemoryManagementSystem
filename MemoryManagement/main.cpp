@@ -1,6 +1,7 @@
 #include "Chunk.h"
 #include "FixedAllocator.h"
 #include "SmallObjectAllocator.h"
+#include "BigObjectAllocator.h"
 
 #include "MM_MemoryManager.hpp"
 
@@ -14,6 +15,7 @@ void ChunkTest();
 void FixedAllocatorTest();
 void SmallObjectAllocatorTest();
 void MemoryManagerTest();
+void BigObjectAllocatorTest();
 
 void main() {
 
@@ -23,7 +25,8 @@ void main() {
 
 	//FixedAllocatorTest();
 
-	MemoryManagerTest();
+	//MemoryManagerTest();
+	BigObjectAllocatorTest();
 }
 
 
@@ -96,4 +99,12 @@ void SmallObjectAllocatorTest() {
 	sa.Deallocate(p2, sizeof(int));
 	sa.Deallocate(p5, sizeof(char));
 	sa.Deallocate(p6, sizeof(char));
+}
+
+void BigObjectAllocatorTest() {
+	BigObjectAllocator sa = BigObjectAllocator(2, 32);
+
+	int* p1 = (int*)sa.Allocate(sizeof(int) + 1);
+	*p1 = 12341;
+	
 }

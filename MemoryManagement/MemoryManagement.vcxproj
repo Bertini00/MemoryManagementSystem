@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BigObjectAllocator.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="FixedAllocator.h" />
     <ClInclude Include="MM_MemoryManager.hpp" />
@@ -134,6 +135,7 @@
     <ClInclude Include="MM_GlobalOverload.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BigObjectAllocator.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="FixedAllocator.cpp" />
     <ClCompile Include="main.cpp" />
