@@ -65,11 +65,19 @@ public:
 	template<class NewType>
 	static NewType* MM_New()
 	{
-		// allocation
-		NewType* newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType));
+		NewType* newPtr;
+		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
+		if (sizeof(NewType) <= 8) {
+			// allocation
+			newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType));
+
+			// construction
+			*newPtr = NewType();
+		}
+		else {
+			//call Big Object Allocator here
+		}
 		
-		// construction
-		*newPtr = NewType();
 
 		return newPtr;
 	}
