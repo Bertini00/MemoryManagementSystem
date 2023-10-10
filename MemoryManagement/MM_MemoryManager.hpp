@@ -19,6 +19,10 @@
 
 #pragma endregion
 
+#pragma region GLOBAL_VARIABLES
+int max_SOA_size = 8;
+#pragma endregion
+
 static class MemoryManager
 {
 
@@ -60,16 +64,24 @@ public:
 
 	/*
 	@brief
-	Class-specific allocation and constructor call, using small object allocator
+	Class-specific allocation and constructor call, using small object allocator or big object allocator
 	*/
 	template<class NewType>
 	static NewType* MM_New()
 	{
-		// allocation
-		NewType* newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType));
+		NewType* newPtr = (NewType*)nullptr;
+		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
+		if (sizeof(NewType) <= max_SOA_size) {
+			// allocation
+			newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType));
+
+			// construction
+			*newPtr = NewType();
+		}
+		else {
+			//call Big Object Allocator here
+		}
 		
-		// construction
-		*newPtr = NewType();
 
 		return newPtr;
 	}
@@ -82,7 +94,7 @@ public:
 
 	/*
 	@brief
-	Class-specific deallocation and destructor call, using small object allocator
+	Class-specific deallocation and destructor call, using small object allocator or big object allocator
 	@param pointer: pointer to object to destroy and deallocate
 	*/
 	template<class DeleteType>
@@ -91,8 +103,16 @@ public:
 		// destruction
 		pointer->~DeleteType();
 
-		// deallocation
-		small_obj_alloc->Deallocate(pointer, sizeof(DeleteType));
+		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
+		if (sizeof(DeleteType) <= max_SOA_size) {
+			// deallocation
+			small_obj_alloc->Deallocate(pointer, sizeof(DeleteType));
+		}
+		else {
+			//call Big Object Allocator here
+		}
+
+		
 	}
 
 	template<class T>
@@ -103,23 +123,39 @@ public:
 
 	/*
 	@brief
-	Allocation, using small object allocator
+	Allocation, using small object allocator or big object allocator
 	@param size: the size (in bytes) of memory to allocate
 	*/
 	static void* MM_Malloc(std::size_t size)
 	{
-		return small_obj_alloc->Allocate(size);
+		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
+		if (size <= max_SOA_size) {
+			return small_obj_alloc->Allocate(size);
+		}
+		else {
+			//call Big Object Allocator here
+			return nullptr;
+		}
+		
 	}
 
 	/*
 	@brief
-	Deallocation, using small object allocator
+	Deallocation, using small object allocator or big object allocator
 	@param pointer: pointer to the memory to deallocate
 	@param size: the size of the memory owned by the pointer
 	*/
 	static void MM_Free(void* pointer, std::size_t size)
 	{
-		small_obj_alloc->Deallocate(pointer, size);
+		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
+		if (size <= max_SOA_size) {
+			small_obj_alloc->Deallocate(pointer, size);
+		}
+		else {
+			//call Big Object Allocator here
+			small_obj_alloc->Deallocate(pointer, size);
+		}
+		
 	}
 
 private:
