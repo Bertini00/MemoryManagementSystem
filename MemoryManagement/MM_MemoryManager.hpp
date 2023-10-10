@@ -19,6 +19,10 @@
 
 #pragma endregion
 
+#pragma region GLOBAL_VARIABLES
+int max_SOA_size = 8;
+#pragma endregion
+
 static class MemoryManager
 {
 
@@ -65,9 +69,9 @@ public:
 	template<class NewType>
 	static NewType* MM_New()
 	{
-		NewType* newPtr;
+		NewType* newPtr = (NewType*)nullptr;
 		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
-		if (sizeof(NewType) <= 8) {
+		if (sizeof(NewType) <= max_SOA_size) {
 			// allocation
 			newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType));
 
@@ -99,8 +103,16 @@ public:
 		// destruction
 		pointer->~DeleteType();
 
-		// deallocation
-		small_obj_alloc->Deallocate(pointer, sizeof(DeleteType));
+		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
+		if (sizeof(DeleteType) <= max_SOA_size) {
+			// deallocation
+			small_obj_alloc->Deallocate(pointer, sizeof(DeleteType));
+		}
+		else {
+			//call Big Object Allocator here
+		}
+
+		
 	}
 
 	template<class T>
