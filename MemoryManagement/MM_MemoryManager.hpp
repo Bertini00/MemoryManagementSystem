@@ -64,7 +64,7 @@ public:
 
 	/*
 	@brief
-	Class-specific allocation and constructor call, using small object allocator
+	Class-specific allocation and constructor call, using small object allocator or big object allocator
 	*/
 	template<class NewType>
 	static NewType* MM_New()
@@ -94,7 +94,7 @@ public:
 
 	/*
 	@brief
-	Class-specific deallocation and destructor call, using small object allocator
+	Class-specific deallocation and destructor call, using small object allocator or big object allocator
 	@param pointer: pointer to object to destroy and deallocate
 	*/
 	template<class DeleteType>
@@ -123,7 +123,7 @@ public:
 
 	/*
 	@brief
-	Allocation, using small object allocator
+	Allocation, using small object allocator or big object allocator
 	@param size: the size (in bytes) of memory to allocate
 	*/
 	static void* MM_Malloc(std::size_t size)
@@ -141,7 +141,7 @@ public:
 
 	/*
 	@brief
-	Deallocation, using small object allocator
+	Deallocation, using small object allocator or big object allocator
 	@param pointer: pointer to the memory to deallocate
 	@param size: the size of the memory owned by the pointer
 	*/
