@@ -147,7 +147,15 @@ public:
 	*/
 	static void MM_Free(void* pointer, std::size_t size)
 	{
-		small_obj_alloc->Deallocate(pointer, size);
+		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
+		if (size <= max_SOA_size) {
+			small_obj_alloc->Deallocate(pointer, size);
+		}
+		else {
+			//call Big Object Allocator here
+			small_obj_alloc->Deallocate(pointer, size);
+		}
+		
 	}
 
 private:
