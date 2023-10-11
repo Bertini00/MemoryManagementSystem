@@ -36,20 +36,6 @@ public:
 
 	/*
 	@brief
-	Initialization of the memory manager - needed before any other function call
-	@param chunkSize: the size of the chunks to use
-	@param maxObjectSize: the maximum size handled by the small object allocator
-	*/
-	static void Init(unsigned char chunkSize, std::size_t maxObjectSize)
-	{
-		if (small_obj_alloc != nullptr)
-			Free();
-
-		small_obj_alloc = new SmallObjectAllocator(chunkSize, maxObjectSize);
-	}
-
-	/*
-	@brief
 	Free of all the resources owned by the memory manager - needed at the end of the usage
 	*/
 	static void Free()
@@ -106,13 +92,16 @@ public:
 	@param pointer: pointer to object to destroy and deallocate
 	*/
 	template<class DeleteType>
-	static void MM_Delete(DeleteType* pointer)
+	static void MM_Delete(DeleteType*& pointer)
 	{
 		// destruction
 		pointer->~DeleteType();
 
 		// deallocation
 		small_obj_alloc->Deallocate(pointer, sizeof(DeleteType));
+
+		// make pointer null
+		pointer = nullptr;
 	}
 
 	/*
@@ -121,7 +110,7 @@ public:
 	@param pointer: the array pointer to deallocate
 	*/
 	template<class DeleteType>
-	static void MM_Delete_A(DeleteType* pointer)
+	static void MM_Delete_A(DeleteType*& pointer)
 	{
 		// take length
 		char length = *((char*)pointer - 1);
@@ -137,6 +126,9 @@ public:
 
 		// deallocation
 		small_obj_alloc->Deallocate(pointer, sizeof(DeleteType) * length + 1);
+
+		// make pointer null
+		pointer = nullptr;
 	}
 
 	/*
@@ -164,7 +156,12 @@ private:
 
 	static SmallObjectAllocator* small_obj_alloc;
 
+	static unsigned char chunkSize;
+	static std::size_t maxObjectSize;
+
 };
 
 // static member needs definition
-SmallObjectAllocator* MemoryManager::small_obj_alloc = nullptr;
+unsigned char MemoryManager::chunkSize = 255;
+std::size_t MemoryManager::maxObjectSize = 32;
+SmallObjectAllocator* MemoryManager::small_obj_alloc = new SmallObjectAllocator(MemoryManager::chunkSize, MemoryManager::maxObjectSize);

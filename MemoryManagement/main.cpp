@@ -40,8 +40,6 @@ void main() {
 
 void MemoryManagerTest()
 {
-	MemoryManager::Init(255, 32);
-
 	int* p1 = MM_NEW(int);
 	MM_DELETE(int, p1);
 
