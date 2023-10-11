@@ -15,6 +15,16 @@ void FixedAllocatorTest();
 void SmallObjectAllocatorTest();
 void MemoryManagerTest();
 
+struct TestStruct
+{
+	int value;
+
+	~TestStruct()
+	{
+		value = 0;
+	}
+};
+
 void main() {
 
 
@@ -30,13 +40,19 @@ void main() {
 
 void MemoryManagerTest()
 {
-	MemoryManager::Init(255, 32);
-
 	int* p1 = MM_NEW(int);
 	MM_DELETE(int, p1);
 
 	float* p2 = (float*)MM_MALLOC(sizeof(float));
 	MM_FREE(p2, sizeof(float));
+
+	int* a1 = MM_NEW_A(int, 3);
+	a1[0] = 1;
+	MM_DELETE_A(int, a1);
+
+	TestStruct* st = MM_NEW_A(TestStruct, 2);
+	st[0].value = 1;
+	MM_DELETE_A(TestStruct, st);
 
 	MemoryManager::Free();
 }
