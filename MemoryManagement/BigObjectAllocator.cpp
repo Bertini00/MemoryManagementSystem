@@ -79,7 +79,7 @@ void* BigObjectAllocator::Allocate(std::size_t numBytes) {
 	}
 	else
 	{
-		// Create a fixed allocator big enough of return the nullpointer because there is no space available?
+		// Create a single big chunk that gets divided into smaller ones when someone asks memory
 	}
 
 
