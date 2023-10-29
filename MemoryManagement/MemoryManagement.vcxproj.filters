@@ -28,6 +28,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MM_MemoryManager.hpp">
+
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BigObjectAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BOA_Block.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -45,6 +52,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MM_GlobalOverload.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BigObjectAllocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BOA_Block.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
