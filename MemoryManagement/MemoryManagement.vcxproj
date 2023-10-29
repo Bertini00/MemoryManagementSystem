@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BigObjectAllocator.h" />
+    <ClInclude Include="BOA_Block.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="FixedAllocator.h" />
     <ClInclude Include="MM_MemoryManager.hpp" />
@@ -136,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigObjectAllocator.cpp" />
+    <ClCompile Include="BOA_Block.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="FixedAllocator.cpp" />
     <ClCompile Include="main.cpp" />

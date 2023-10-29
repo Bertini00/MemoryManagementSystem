@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "FixedAllocator.h"
+#include "BOA_Block.h"
 
 enum FitType
 {
@@ -19,12 +19,15 @@ public:
 	void* Allocate(std::size_t numBytes);
 	void Deallocate(void* p, std::size_t size);
 
+	void joinNearBlocks(BOA_Block* block);
+
 private:
 	unsigned char chunkSize_;
 	size_t startingObjectSize_;
 	FitType fitType_;
 
-	std::vector<FixedAllocator> pool_;
-	FixedAllocator* pLastAlloc_;
-	FixedAllocator* pLastDealloc_;
+	
+	std::vector<BOA_Block> pool_;
+	BOA_Block* pLastAlloc_;
+	BOA_Block* pLastDealloc_;
 };

@@ -33,6 +33,9 @@
     <ClInclude Include="BigObjectAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BOA_Block.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Chunk.cpp">
@@ -51,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BigObjectAllocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BOA_Block.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
