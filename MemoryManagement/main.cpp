@@ -1,3 +1,4 @@
+
 #include "Chunk.h"
 #include "FixedAllocator.h"
 #include "SmallObjectAllocator.h"
@@ -5,7 +6,10 @@
 
 #include "MM_MemoryManager.hpp"
 
+#include "RedBlackTree/RBTree.h"
+
 #include <iostream>
+#include <chrono>
 
 #ifndef globalOverride
 #define globalOverride
@@ -15,6 +19,17 @@ void ChunkTest();
 void FixedAllocatorTest();
 void SmallObjectAllocatorTest();
 void MemoryManagerTest();
+void RBTreeTest();
+
+struct TestStruct
+{
+	int value;
+
+	~TestStruct()
+	{
+		value = 0;
+	}
+};
 void BigObjectAllocatorTest();
 
 void main() {
@@ -26,20 +41,74 @@ void main() {
 	//FixedAllocatorTest();
 
 	//MemoryManagerTest();
+
+	RBTreeTest();
 	BigObjectAllocatorTest();
 }
 
 
+void RBTreeTest()
+{
+	RBTree tree = RBTree();
+
+	std::chrono::high_resolution_clock::time_point begin;
+	std::chrono::high_resolution_clock::time_point end;
+	std::chrono::milliseconds elapsed;
+
+
+#pragma region 1
+
+	std::cout << "Inserts:" << std::endl;
+
+	begin = std::chrono::high_resolution_clock::now();
+
+	void* value = nullptr;
+	tree.Insert(8, value);
+	tree.Insert(20, value);
+	tree.Insert(6, value);
+	tree.Insert(0, value);
+	tree.Insert(10, value);
+	tree.Insert(9, value);
+	tree.Insert(7, value);
+	tree.Insert(21, value);
+	tree.Insert(22, value);
+
+	end = std::chrono::high_resolution_clock::now();
+
+	elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+
+	tree.Print();
+
+	std::cout << "Deletes:" << std::endl;
+
+	// delete tests
+	tree.Delete(10);
+	tree.Delete(20);
+	tree.Delete(8);
+
+	tree.Print();
+
+	// print
+	std::cout << "9 insert elapsed time: " << elapsed.count() << " ms" << std::endl;
+
+#pragma endregion 1
+}
 
 void MemoryManagerTest()
 {
-	MemoryManager::Init(255, 32);
-
 	int* p1 = MM_NEW(int);
 	MM_DELETE(int, p1);
 
 	float* p2 = (float*)MM_MALLOC(sizeof(float));
 	MM_FREE(p2, sizeof(float));
+
+	int* a1 = MM_NEW_A(int, 3);
+	a1[0] = 1;
+	MM_DELETE_A(int, a1);
+
+	TestStruct* st = MM_NEW_A(TestStruct, 2);
+	st[0].value = 1;
+	MM_DELETE_A(TestStruct, st);
 
 	MemoryManager::Free();
 }
