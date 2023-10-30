@@ -8,6 +8,8 @@
 #define RED "\033[0;31m"
 #define WHITE "\033[0m"
 
+#undef max
+
 RBTree::RBTree()
 {
     nullnode = new RBNode();
@@ -278,6 +280,36 @@ RBNode* RBTree::LookUp(unsigned int key)
 
     // key not found
     return nullptr;
+}
+
+RBNode* RBTree::LookUpAtLeast(unsigned int key)
+{
+    if (this->root == nullnode)
+        return nullptr; // void tree
+
+    RBNode* node = this->root;
+    RBNode* chosen = nullptr;
+    unsigned int minKey = std::numeric_limits<unsigned int>::max();
+    while (node != nullnode)
+    {
+        if (node->key == key)
+        {
+            // node found
+            return node;
+        }
+
+        if (node->key < minKey && node->key >= key)
+            chosen = node;
+
+        // continue the search
+
+        if (node->key < key)
+            node = node->right;
+        else
+            node = node->left;
+    }
+
+    return chosen;
 }
 
 RBNode* RBTree::Min(RBNode* node)

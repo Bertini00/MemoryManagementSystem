@@ -43,6 +43,13 @@ public:
 
     /*
     @brief
+    Look for a node with the minimum key equal or greater than the key parameter, nullptr otherwise
+    @param key: the key to use in the search
+    */
+    LIB RBNode* LookUpAtLeast(unsigned int key);
+
+    /*
+    @brief
     Search for the node with minimum key in the subtree
     @param node: the root node of the subtree
     */
