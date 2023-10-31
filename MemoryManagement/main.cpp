@@ -91,6 +91,13 @@ void RBTreeTest()
 	// print
 	std::cout << "9 insert elapsed time: " << elapsed.count() << " ms" << std::endl;
 
+	RBNode* around = tree.LookUpAtLeast(18);
+	if (around != nullptr)
+		std::cout << around->key << std::endl;
+	around = tree.LookUpAtLeast(23);
+	if (around != nullptr)
+		std::cout << around->key << std::endl;
+
 #pragma endregion 1
 }
 

@@ -32,14 +32,21 @@ public:
     @param key: the key of the node
     @param value: the pointer to the value held by the node
     */
-    LIB void Insert(unsigned int key, void* value);
+    LIB void Insert(size_t key, void* value);
 
     /*
     @brief
     Look for a node with the corresponding key value
     @param key: the key to use in the search
     */
-    LIB RBNode* LookUp(unsigned int key);
+    LIB RBNode* LookUp(size_t key);
+
+    /*
+    @brief
+    Look for a node with the minimum key equal or greater than the key parameter, nullptr otherwise
+    @param key: the key to use in the search
+    */
+    LIB RBNode* LookUpAtLeast(size_t key);
 
     /*
     @brief
@@ -59,7 +66,7 @@ public:
     Delete the node with the corresponding key value from the rbtree, maintaining rbtree properties
     @param key: the key of the node to delete
     */
-    LIB void Delete(unsigned int key);
+    LIB void Delete(size_t key);
 
     LIB ~RBTree();
 
