@@ -259,7 +259,7 @@ void RBTree::RBTreeInsuranceAtDelete(RBNode* node)
     node->color = RBColor::Black;
 }
 
-RBNode* RBTree::LookUp(unsigned int key)
+RBNode* RBTree::LookUp(size_t key)
 {
     RBNode* node = this->root;
     while (node != nullnode)
@@ -282,14 +282,14 @@ RBNode* RBTree::LookUp(unsigned int key)
     return nullptr;
 }
 
-RBNode* RBTree::LookUpAtLeast(unsigned int key)
+RBNode* RBTree::LookUpAtLeast(size_t key)
 {
     if (this->root == nullnode)
         return nullptr; // void tree
 
     RBNode* node = this->root;
     RBNode* chosen = nullptr;
-    unsigned int minKey = std::numeric_limits<unsigned int>::max();
+    size_t minKey = std::numeric_limits<size_t>::max();
     while (node != nullnode)
     {
         if (node->key == key)
@@ -334,7 +334,7 @@ RBNode* RBTree::Max(RBNode* node)
     return max;
 }
 
-void RBTree::Insert(unsigned int key, void* value)
+void RBTree::Insert(size_t key, void* value)
 {
     if (this->root == nullnode)
     {
@@ -381,7 +381,7 @@ void RBTree::Insert(unsigned int key, void* value)
     this->RBTreeInsuranceAtInsert(newNode);
 }
 
-void RBTree::Delete(unsigned int key)
+void RBTree::Delete(size_t key)
 {
     RBNode* x;
     RBNode* y;

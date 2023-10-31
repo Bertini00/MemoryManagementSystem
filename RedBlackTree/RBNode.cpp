@@ -5,7 +5,7 @@
 
 RBNode::RBNode() {}
 
-RBNode::RBNode(RBColor color, unsigned int key, void* value, RBNode* nullnode)
+RBNode::RBNode(RBColor color, size_t key, void* value, RBNode* nullnode)
     : color(color)
     , key(key)
     , value(value)

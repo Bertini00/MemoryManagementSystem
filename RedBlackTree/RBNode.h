@@ -21,13 +21,13 @@ public:
     @param value: the pointer to the value held by the node
     @param nullnode: the pointer to an object representing a null node (null pointer by default)
     */
-    LIB RBNode(RBColor color, unsigned int key, void* value, RBNode* nullnode = nullptr);
+    LIB RBNode(RBColor color, size_t key, void* value, RBNode* nullnode = nullptr);
 
     RBNode* left;
     RBNode* right;
     RBNode* parent;
     RBColor color;
-    unsigned int key;
+    size_t key;
     void* value;
 
 };
