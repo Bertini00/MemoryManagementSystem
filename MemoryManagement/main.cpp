@@ -42,7 +42,7 @@ void main() {
 
 	//MemoryManagerTest();
 
-	RBTreeTest();
+	//RBTreeTest();
 	BigObjectAllocatorTest();
 }
 
@@ -171,9 +171,7 @@ void SmallObjectAllocatorTest() {
 }
 
 void BigObjectAllocatorTest() {
-	BigObjectAllocator sa = BigObjectAllocator(2, 32);
+	BigObjectAllocator boa = BigObjectAllocator(1024, 32);
 
-	int* p1 = (int*)sa.Allocate(sizeof(int) + 1);
-	*p1 = 12341;
 	
 }
