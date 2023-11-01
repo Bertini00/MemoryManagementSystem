@@ -44,6 +44,8 @@ void main() {
 
 	//RBTreeTest();
 	BigObjectAllocatorTest();
+
+	std::cout << sizeof(size_t) << std::endl;
 }
 
 
@@ -180,5 +182,10 @@ void SmallObjectAllocatorTest() {
 void BigObjectAllocatorTest() {
 	BigObjectAllocator boa = BigObjectAllocator(1024, 32);
 
-	
+	int* i = (int*)boa.Allocate(sizeof(int));
+	*i = 255;
+
+	boa.Deallocate(i, sizeof(i));
+
+	std::cout << "proca" << std::endl;
 }

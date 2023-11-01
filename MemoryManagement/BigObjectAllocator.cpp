@@ -1,45 +1,111 @@
 #include "BigObjectAllocator.h"
-
+#include <malloc.h>
 
 BigObjectAllocator::BigObjectAllocator(size_t sizeAlloc, std::size_t startingObjectSize, FitType fitType) :sizeAlloc_(sizeAlloc), startingObjectSize_(startingObjectSize), fitType_(fitType)
 {
+	// Create RBTree
 	rbTree = new RBTree();
 
-	BOA_Block* block = new BOA_Block(new unsigned char[sizeAlloc]);
-	tail_ = block->getPointerToData();
-	tail_ += sizeAlloc - block->getHeaderSize();
+	// Calculate the effective size with header included
+	size_t effectiveSize = sizeAlloc + sizeof(BOA_Block);
 
-	rbTree->Insert(sizeAlloc - block->getHeaderSize(), block->getPointerToData());
-	
+	// Create memory
+	unsigned char* pointer = (unsigned char* )malloc(effectiveSize);
+
+	// Set the tail
+	tail_ = pointer + effectiveSize;
+
+	// Add header to memory just created
+	BOA_Block* block = new (pointer)BOA_Block(tail_);
+
+	// Insert the memory block in the rb tree
+	rbTree->Insert(sizeAlloc, block);
 }
 
 BigObjectAllocator::~BigObjectAllocator() {
 }
 
 void* BigObjectAllocator::Allocate(std::size_t numBytes) {
-	switch (fitType_)
+
+	// Get the nearest node from the tree
+	RBNode* node = rbTree->LookUpAtLeast(numBytes);
+
+	unsigned char* result = nullptr;
+
+	// Check if there is a space for the numBytes requested
+	if (node != nullptr)
 	{
-	case BEST_FIT:
-		unsigned char* currentBest = rbTree.
+		// Get header of resulting pointer
+		BOA_Block* headerResult = (BOA_Block*)node->value;
+
+		// Get the correct pointer to data to return without the header 
+		result = (unsigned char* )node->value + sizeof(BOA_Block);
+
+		// Get the pointer to the next block header included
+		unsigned char* tmp = result + numBytes;
 
 
-		break;
-	case WORST_FIT:
-		break;
-	case FIRST_FIT:
-		break;
-	default:
-		break;
+		// Add the header to the new block
+		BOA_Block * block = new (tmp)BOA_Block(((BOA_Block*)(node->value))->next_, (unsigned char*)node->value);
+
+		// Set next to the result pointer header
+		headerResult->next_ = tmp;
+
+		// Set available to false
+		headerResult->available = 0;
+
+		// Remove the block from the tree
+		rbTree->Delete(node->key);
+
+		// Insert the new block 
+		rbTree->Insert(block->next_ - tmp - sizeof(BOA_Block), tmp);
 	}
-
-
-	return new int;
+	return result;
 }
 
 void BigObjectAllocator::Deallocate(void* p, std::size_t size) {
+
+	// Cast to unsigned to write in it
+	unsigned char* pointer = (unsigned char *)p;
+
+	// Get the pointer with the header
+	pointer -= sizeof(BOA_Block);
+
+	// Get the header
+	BOA_Block* header = (BOA_Block*)pointer;
+
+	joinNearBlocks(header);
+
 	return;
 }
 
 void BigObjectAllocator::joinNearBlocks(BOA_Block* block) {
+
 	
+	
+	// Join this with next
+	if (block->next_ != tail_)
+	{
+		BOA_Block* next = (BOA_Block*)block->next_;
+		
+		if (next->available)
+		{
+			block->next_ = next->next_;
+			rbTree->Delete(block->next_ - (unsigned char*)next - sizeof(BOA_Block));
+		}
+	}
+
+	// Join this with prev
+	if (block->prev_ != nullptr)
+	{
+		BOA_Block* prev = (BOA_Block*)block->prev_;
+		if (prev->available)
+		{
+			prev->next_ = block->next_;
+			rbTree->Delete(block - prev - sizeof(BOA_Block));
+		}
+	}
+	rbTree->Insert(block->next_ - (unsigned char*)block - sizeof(BOA_Block), block);
+
+	return;
 }

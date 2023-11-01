@@ -63,5 +63,20 @@ private:
 
 	unsigned char* tail_;
 
+	/*
+	Keys of the Node contains only the size of the memory available
+	Value of the Node contains a pointer, header INCLUDED
+	*/
 	RBTree* rbTree;
 };
+
+
+/*
+Gestisco la memoria come raw memory, creo un Boa Block iniziale con la malloc e poi gestisco tutta la memoria tramite puntatori
+Il BOA Block è solamente l'header che viene utilizzato solamente nell'init dell'allocator
+
+Esempio:
+chiedo 200 byte, l'rb tree ha un blocco da 1024, tolgo il blocco da 1024 avanzo il puntatore di 200 + header, setto l'header del nuovo blocco e reinserisco il blocco restante
+in seguito ritorno il puntatore al blocco libero da 200
+
+*/

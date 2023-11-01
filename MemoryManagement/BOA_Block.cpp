@@ -1,11 +1,12 @@
 #include "BOA_Block.h"
+#include <malloc.h>
 
-BOA_Block::BOA_Block(unsigned char* pData, unsigned char* next, unsigned char* prev): pData_(pData), next_(next), prev_(prev) {}
-
-size_t BOA_Block::getHeaderSize() {
-	return sizeof(prev_) + sizeof(next_);
+BOA_Block::BOA_Block(unsigned char* next, unsigned char* prev) : next_(next), prev_(prev) 
+{
+	available = 1;
 }
 
+
 unsigned char* BOA_Block::getPointerToData() {
-	return pData_ + BOA_Block::getHeaderSize();
+	return (unsigned char* )this + sizeof(BOA_Block);
 }
