@@ -193,8 +193,12 @@ void BigObjectAllocatorTest() {
 
 	int* i = (int*)boa.Allocate(sizeof(int));
 	*i = 255;
+	int* j = (int*)boa.Allocate(sizeof(int));
+	int* k = (int*)boa.Allocate(sizeof(int));
+	int* w = (int*)boa.Allocate(sizeof(int));
 
 	boa.Deallocate(i, sizeof(i));
+	boa.Deallocate(k, sizeof(k));
 
-	std::cout << "proca" << std::endl;
+	i = (int*)boa.Allocate(sizeof(int));
 }

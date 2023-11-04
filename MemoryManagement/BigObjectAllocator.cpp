@@ -55,7 +55,7 @@ void* BigObjectAllocator::Allocate(std::size_t numBytes) {
 		headerResult->available = 0;
 
 		// Remove the block from the tree
-		rbTree->Delete(node->key);
+		rbTree->Delete(node->key, node->value);
 
 		// Insert the new block 
 		rbTree->Insert(block->next_ - tmp - sizeof(BOA_Block), tmp);
@@ -91,7 +91,7 @@ void BigObjectAllocator::joinNearBlocks(BOA_Block* block) {
 		if (next->available)
 		{
 			block->next_ = next->next_;
-			rbTree->Delete(block->next_ - (unsigned char*)next - sizeof(BOA_Block));
+			rbTree->Delete(next->next_ - (unsigned char*)next - sizeof(BOA_Block), next);
 		}
 	}
 
@@ -102,7 +102,7 @@ void BigObjectAllocator::joinNearBlocks(BOA_Block* block) {
 		if (prev->available)
 		{
 			prev->next_ = block->next_;
-			rbTree->Delete(block - prev - sizeof(BOA_Block));
+			rbTree->Delete(block - prev - sizeof(BOA_Block), prev);
 		}
 	}
 	rbTree->Insert(block->next_ - (unsigned char*)block - sizeof(BOA_Block), block);
