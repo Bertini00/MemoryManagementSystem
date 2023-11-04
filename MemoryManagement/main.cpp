@@ -62,13 +62,14 @@ void RBTreeTest()
 
 	begin = std::chrono::high_resolution_clock::now();
 
+	int x = 1;
 	void* value = nullptr;
 	tree.Insert(8, value);
 	tree.Insert(20, value);
 	tree.Insert(6, value);
 	tree.Insert(0, value);
 	tree.Insert(10, value);
-	tree.Insert(9, value);
+	tree.Insert(9, &x);
 	tree.Insert(7, value);
 	tree.Insert(21, value);
 	tree.Insert(22, value);
@@ -97,6 +98,14 @@ void RBTreeTest()
 	around = tree.LookUpAtLeast(23);
 	if (around != nullptr)
 		std::cout << around->key << std::endl;
+
+	// test of delete on same key with different values
+	std::cout << "Same key delete tests" << std::endl;
+	int y = 5;
+	tree.Insert(9, &y);
+	tree.Print();
+	tree.Delete(9, &y);
+	tree.Print();
 
 #pragma endregion 1
 }
@@ -175,12 +184,4 @@ void SmallObjectAllocatorTest() {
 	sa.Deallocate(p2, sizeof(int));
 	sa.Deallocate(p5, sizeof(char));
 	sa.Deallocate(p6, sizeof(char));
-}
-
-void BigObjectAllocatorTest() {
-	BigObjectAllocator sa = BigObjectAllocator(2, 32);
-
-	int* p1 = (int*)sa.Allocate(sizeof(int) + 1);
-	*p1 = 12341;
-	
 }
