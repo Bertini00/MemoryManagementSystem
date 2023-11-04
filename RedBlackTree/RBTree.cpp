@@ -282,6 +282,29 @@ RBNode* RBTree::LookUp(size_t key)
     return nullptr;
 }
 
+RBNode* RBTree::LookUp(size_t key, void* value)
+{
+    RBNode* node = this->root;
+    while (node != nullnode)
+    {
+        if (node->key == key && node->value == value)
+        {
+            // node found
+            return node;
+        }
+
+        // continue the search
+
+        if (node->key < key)
+            node = node->right;
+        else
+            node = node->left;
+    }
+
+    // key not found
+    return nullptr;
+}
+
 RBNode* RBTree::LookUpAtLeast(size_t key)
 {
     if (this->root == nullnode)
@@ -383,53 +406,71 @@ void RBTree::Insert(size_t key, void* value)
 
 void RBTree::Delete(size_t key)
 {
-    RBNode* x;
-    RBNode* y;
+    RBNode* toDelete = this->LookUp(key);
 
-    RBNode* z = this->LookUp(key);
-
-    if (z == nullptr)
+    if (toDelete == nullptr)
     {
         // node not found
         return;
     }
 
-    y = z;
+    this->DeleteNode(toDelete);
+}
+
+void RBTree::Delete(size_t key, void* value)
+{
+    RBNode* toDelete = this->LookUp(key, value);
+
+    if (toDelete == nullptr)
+    {
+        // node not found
+        return;
+    }
+
+    this->DeleteNode(toDelete);
+}
+
+void RBTree::DeleteNode(RBNode* node)
+{
+    RBNode* x;
+    RBNode* y;
+
+    y = node;
     RBColor y_original_color = y->color;
 
-    if (z->left == nullnode)
+    if (node->left == nullnode)
     {
-        x = z->right;
-        this->Transplant(z, z->right);
+        x = node->right;
+        this->Transplant(node, node->right);
     }
-    else if (z->right == nullnode)
+    else if (node->right == nullnode)
     {
-        x = z->left;
-        this->Transplant(z, z->left);
+        x = node->left;
+        this->Transplant(node, node->left);
     }
     else
     {
-        y = this->Min(z->right);
+        y = this->Min(node->right);
         y_original_color = y->color;
         x = y->right;
-        if (y->parent == z)
+        if (y->parent == node)
         {
             x->parent = y;
         }
         else
         {
             this->Transplant(y, y->right);
-            y->right = z->right;
+            y->right = node->right;
             y->right->parent = y;
         }
 
-        this->Transplant(z, y);
-        y->left = z->left;
+        this->Transplant(node, y);
+        y->left = node->left;
         y->left->parent = y;
-        y->color = z->color;
+        y->color = node->color;
     }
 
-    delete z;
+    delete node;
 
     if (y_original_color == RBColor::Black)
     {

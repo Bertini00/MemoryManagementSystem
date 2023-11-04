@@ -42,6 +42,13 @@ public:
     LIB RBNode* LookUp(size_t key);
 
     /*
+    Look for a node with the corresponding pair key-value
+    @param key: the key to use in the search
+    @param value: the value to use in the search
+    */
+    LIB RBNode* LookUp(size_t key, void* value);
+
+    /*
     @brief
     Look for a node with the minimum key equal or greater than the key parameter, nullptr otherwise
     @param key: the key to use in the search
@@ -68,6 +75,13 @@ public:
     */
     LIB void Delete(size_t key);
 
+    /*
+    Delete the node with the corresponding key-value pair from the rbtree, maintaining rbtree properties
+    @param key: the key of the node to delete
+    @param value: the value of the node to delete
+    */
+    LIB void Delete(size_t key, void* value);
+
     LIB ~RBTree();
 
 private:
@@ -87,6 +101,8 @@ private:
     void LeftRotation(RBNode* node);
 
     void RightRotation(RBNode* node);
+
+    void DeleteNode(RBNode* node);
 
     RBNode* root;
     RBNode* nullnode;
