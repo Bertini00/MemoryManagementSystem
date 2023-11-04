@@ -81,7 +81,7 @@ void RBTree::Reconstruction(RBNode* newNode)
     RBNode* grandparent = parent->parent;
 
     // ordering nodes basing on 4 cases
-    if (newNode->key < parent->key && parent->key < grandparent->key)
+    if (parent->left == newNode && grandparent->left == parent)
     {
         // first case
         this->RightRotation(grandparent);
@@ -90,7 +90,7 @@ void RBTree::Reconstruction(RBNode* newNode)
         parent->color = RBColor::Black;
         grandparent->color = RBColor::Red;
     }
-    else if (newNode->key > parent->key && parent->key < grandparent->key)
+    else if (parent->right == newNode && grandparent->left == parent)
     {
         // second case
         this->LeftRotation(parent);
@@ -100,7 +100,7 @@ void RBTree::Reconstruction(RBNode* newNode)
         newNode->color = RBColor::Black;
         grandparent->color = RBColor::Red;
     }
-    else if (newNode->key > parent->key && parent->key > grandparent->key)
+    else if (parent->right == newNode && grandparent->right == parent)
     {
         // third case
         this->LeftRotation(grandparent);
