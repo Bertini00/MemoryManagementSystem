@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <cstddef>
+#include <malloc.h>
 
 #pragma region MACROS
 
@@ -17,10 +17,6 @@
 
 #define MM_FREE(pointer, size) MemoryManager::MM_Free(pointer, size);
 
-#pragma endregion
-
-#pragma region GLOBAL_VARIABLES
-int max_SOA_size = 8;
 #pragma endregion
 
 static class MemoryManager
@@ -40,6 +36,19 @@ public:
 
 	/*
 	@brief
+	Init all the resources needed by the memory manager - needed at the start of the usage
+	*/
+	static void Init()
+	{
+		big_obj_alloc = (BigObjectAllocator*)malloc(sizeof(BigObjectAllocator));
+		new(big_obj_alloc) BigObjectAllocator(MemoryManager::BOA_sizeAllocation, MemoryManager::BOA_startingObjectSize);
+
+		small_obj_alloc = (SmallObjectAllocator*)malloc(sizeof(SmallObjectAllocator));
+		new(small_obj_alloc) SmallObjectAllocator(MemoryManager::SOA_chunkSize, MemoryManager::SOA_maxObjectSize);
+	}
+
+	/*
+	@brief
 	Free of all the resources owned by the memory manager - needed at the end of the usage
 	*/
 	static void Free()
@@ -55,21 +64,30 @@ public:
 	template<class NewType>
 	static NewType* MM_New()
 	{
-		NewType* newPtr = (NewType*)nullptr;
-		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
-		if (sizeof(NewType) <= max_SOA_size) {
+		if (sizeof(NewType) <= MemoryManager::SOA_maxObjectSize)
+		{
+			// small
+			
 			// allocation
-			newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType));
+			NewType* newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType));
 
 			// construction
-			*newPtr = NewType();
-		}
-		else {
-			//call Big Object Allocator here
-		}
-		
+			new(newPtr) NewType();
 
-		return newPtr;
+			return newPtr;
+		}
+		else
+		{
+			// big
+
+			// allocation
+			NewType* newPtr = (NewType*)big_obj_alloc->Allocate(sizeof(NewType));
+
+			// construction
+			new(newPtr) NewType();
+
+			return newPtr;
+		}
 	}
 
 	/*
@@ -78,24 +96,61 @@ public:
 	@param length: the length of the array to allocate
 	*/
 	template<class NewType>
-	static NewType* MM_New_A(char length)
+	static NewType* MM_New_A(size_t length)
 	{
-		// allocation
-		NewType* newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType) * length + 1);
-
-		// write length at the beginning of the pointer
-		*(char*)newPtr = length;
-
-		// take pointer to return
-		newPtr = (NewType*)((char*)newPtr + 1);
-
-		// construction call for each object
-		for (char i = 0; i < length; ++i)
+		size_t numBytes = sizeof(NewType) * length;
+		if (length <= 255)
 		{
-			newPtr[i] = NewType();
+			numBytes += 1; // size of unsigned char
+		}
+		else
+		{
+			numBytes += sizeof(size_t);
 		}
 
-		return newPtr;
+		if (numBytes <= MemoryManager::SOA_maxObjectSize)
+		{
+			// small
+
+			// allocation
+			NewType* newPtr = (NewType*)small_obj_alloc->Allocate(numBytes);
+
+			// write length at the beginning of the pointer
+			*(unsigned char*)newPtr = (unsigned char)length; // taken as unsigned char because for longer arrays -> the allocation will be taken from the BOA
+
+			// take pointer to return
+			newPtr = (NewType*)((unsigned char*)newPtr + 1);
+
+			// construction call for each object
+			unsigned char _length = (unsigned char)length;
+			for (unsigned char i = 0; i < _length; ++i)
+			{
+				newPtr[i] = NewType();
+			}
+
+			return newPtr;
+		}
+		else
+		{
+			// big
+
+			// allocation
+			NewType* newPtr = (NewType*)big_obj_alloc->Allocate(numBytes);
+
+			// write length at the beginning of the pointer
+			*(size_t*)newPtr = length;
+
+			// take pointer to return
+			newPtr = (NewType*)((size_t*)newPtr + 1);
+
+			// construction call for each object
+			for (size_t i = 0; i < length; ++i)
+			{
+				newPtr[i] = NewType();
+			}
+
+			return newPtr;
+		}
 	}
 
 	/*
@@ -109,13 +164,18 @@ public:
 		// destruction
 		pointer->~DeleteType();
 
-		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
-		if (sizeof(DeleteType) <= max_SOA_size) {
+		if (sizeof(DeleteType) <= MemoryManager::SOA_maxObjectSize)
+		{
+			// small
+			
 			// deallocation
 			small_obj_alloc->Deallocate(pointer, sizeof(DeleteType));
 		}
-		else {
-			//call Big Object Allocator here
+		else
+		{
+			// big
+
+			big_obj_alloc->Deallocate(pointer, sizeof(DeleteType));
 		}
 
 		// make pointer null
@@ -130,6 +190,12 @@ public:
 	template<class DeleteType>
 	static void MM_Delete_A(DeleteType*& pointer)
 	{
+		// PROBLEMA: se allochiamo array di small object come un singolo small object -> se la size massima è ad esempio 8 non si potranno avere array più lunghi di 8 elementi (nel caso di oggetti da 1 byte, ma è solo un esempio)
+		// POSSIBILE SOLUZIONE: allocare array di small object come tante allocazioni separate, scrivendo all'inizio la lunghezza dell'array -> la dimensione dell'intero destinato a conservare la lunghezza potrebbe essere pari alla size del singolo elemento -> in questo modo si può sempre sapere in fase di deallocazione di quanto tornare indietro per ottenere la lunghezza dell'array
+
+
+		//size_t numBytes = sizeof(DeleteType) * length;
+
 		// take length
 		char length = *((char*)pointer - 1);
 
@@ -154,15 +220,19 @@ public:
 	Allocation, using small object allocator or big object allocator
 	@param size: the size (in bytes) of memory to allocate
 	*/
-	static void* MM_Malloc(std::size_t size)
+	static void* MM_Malloc(size_t size)
 	{
-		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
-		if (size <= max_SOA_size) {
+		if (size <= MemoryManager::SOA_maxObjectSize)
+		{
+			// small
+
 			return small_obj_alloc->Allocate(size);
 		}
-		else {
-			//call Big Object Allocator here
-			return nullptr;
+		else
+		{
+			// big
+
+			return big_obj_alloc->Allocate(size);
 		}
 		
 	}
@@ -173,29 +243,42 @@ public:
 	@param pointer: pointer to the memory to deallocate
 	@param size: the size of the memory owned by the pointer
 	*/
-	static void MM_Free(void* pointer, std::size_t size)
+	static void MM_Free(void* pointer, size_t size)
 	{
-		// if the size of the object is smaller or equal than the maximum size handled by the small object allocator
-		if (size <= max_SOA_size) {
+		if (size <= MemoryManager::SOA_maxObjectSize)
+		{
+			// small
+
 			small_obj_alloc->Deallocate(pointer, size);
 		}
-		else {
-			//call Big Object Allocator here
-			small_obj_alloc->Deallocate(pointer, size);
+		else
+		{
+			// big
+
+			big_obj_alloc->Deallocate(pointer, size);
 		}
 		
 	}
 
 private:
 
+	static BigObjectAllocator* big_obj_alloc;
 	static SmallObjectAllocator* small_obj_alloc;
 
-	static unsigned char chunkSize;
-	static std::size_t maxObjectSize;
+	// big
+	static size_t BOA_sizeAllocation;
+	static size_t BOA_startingObjectSize;
+
+	// small
+	static unsigned char SOA_chunkSize;
+	static size_t SOA_maxObjectSize;
 
 };
 
 // static member needs definition
-unsigned char MemoryManager::chunkSize = 255;
-std::size_t MemoryManager::maxObjectSize = max_SOA_size;
-SmallObjectAllocator* MemoryManager::small_obj_alloc = new SmallObjectAllocator(MemoryManager::chunkSize, MemoryManager::maxObjectSize);
+size_t MemoryManager::BOA_sizeAllocation = 1024;
+size_t MemoryManager::BOA_startingObjectSize = 32;
+unsigned char MemoryManager::SOA_chunkSize = 255;
+size_t MemoryManager::SOA_maxObjectSize = 8;
+BigObjectAllocator* MemoryManager::big_obj_alloc = nullptr;
+SmallObjectAllocator* MemoryManager::small_obj_alloc = nullptr;
