@@ -64,6 +64,7 @@ public:
 	template<class NewType>
 	static NewType* MM_New()
 	{
+		// delegate allocation
 		if (sizeof(NewType) <= MemoryManager::SOA_maxObjectSize)
 		{
 			// small
@@ -101,25 +102,27 @@ public:
 		size_t numBytes = sizeof(NewType) * length;
 		if (length <= 255)
 		{
-			numBytes += 1; // size of unsigned char
+			numBytes += 2; // size of unsigned char for metadata size info + size of another unsigned char for actual length
 		}
 		else
 		{
-			numBytes += sizeof(size_t);
+			numBytes += 1 + sizeof(size_t); // size of unsigned char for metadata size info + size of size_t for actual length
 		}
 
+		// delegate allocation
 		if (numBytes <= MemoryManager::SOA_maxObjectSize)
 		{
 			// small
 
 			// allocation
-			NewType* newPtr = (NewType*)small_obj_alloc->Allocate(numBytes);
+			unsigned char* ptr = (unsigned char*)small_obj_alloc->Allocate(numBytes);
 
-			// write length at the beginning of the pointer
-			*(unsigned char*)newPtr = (unsigned char)length; // taken as unsigned char because for longer arrays -> the allocation will be taken from the BOA
+			// write metadata at the beginning of the pointer
+			*ptr = (unsigned char)length; // taken as unsigned char because for longer arrays -> the allocation will be taken from the BOA
+			*(ptr + 1) = 1; // size of unsigned char (metadata size)
 
 			// take pointer to return
-			newPtr = (NewType*)((unsigned char*)newPtr + 1);
+			NewType* newPtr = (NewType*)(ptr + 2);
 
 			// construction call for each object
 			unsigned char _length = (unsigned char)length;
@@ -135,13 +138,14 @@ public:
 			// big
 
 			// allocation
-			NewType* newPtr = (NewType*)big_obj_alloc->Allocate(numBytes);
+			unsigned char* ptr = (unsigned char*)big_obj_alloc->Allocate(numBytes);
 
-			// write length at the beginning of the pointer
-			*(size_t*)newPtr = length;
+			// write metadata at the beginning of the pointer
+			*(size_t*)ptr = length;
+			*(ptr + 1) = sizeof(size_t); // size of size_t (metadata size)
 
 			// take pointer to return
-			newPtr = (NewType*)((size_t*)newPtr + 1);
+			NewType* newPtr = (NewType*)(ptr + sizeof(size_t) + 1);
 
 			// construction call for each object
 			for (size_t i = 0; i < length; ++i)
@@ -164,6 +168,7 @@ public:
 		// destruction
 		pointer->~DeleteType();
 
+		// delegate deallocation
 		if (sizeof(DeleteType) <= MemoryManager::SOA_maxObjectSize)
 		{
 			// small
@@ -190,26 +195,47 @@ public:
 	template<class DeleteType>
 	static void MM_Delete_A(DeleteType*& pointer)
 	{
-		// PROBLEMA: se allochiamo array di small object come un singolo small object -> se la size massima è ad esempio 8 non si potranno avere array più lunghi di 8 elementi (nel caso di oggetti da 1 byte, ma è solo un esempio)
-		// POSSIBILE SOLUZIONE: allocare array di small object come tante allocazioni separate, scrivendo all'inizio la lunghezza dell'array -> la dimensione dell'intero destinato a conservare la lunghezza potrebbe essere pari alla size del singolo elemento -> in questo modo si può sempre sapere in fase di deallocazione di quanto tornare indietro per ottenere la lunghezza dell'array
+		// take array length from metadata
+		unsigned char* ptr = (unsigned char*)pointer;
+		unsigned char metaSize = *(ptr - 1); // metadata size
+		ptr = ptr - 1 - metaSize; // move ptr to actual array length data -> pointer to actual allocation
 
+		size_t length;
+		if (metaSize == 1)
+		{
+			// length as unsigned char
 
-		//size_t numBytes = sizeof(DeleteType) * length;
+			length = *(ptr);
+		}
+		else
+		{
+			// length as size_t
 
-		// take length
-		char length = *((char*)pointer - 1);
+			length = *((size_t*)ptr);
+		}
+
+		// actual allocation size
+		size_t numBytes = sizeof(DeleteType) * length + 1 + metaSize;
 
 		// destruction
-		for (char i = 0; i < length; ++i)
+		for (size_t i = 0; i < length; ++i)
 		{
 			pointer[i].~DeleteType();
 		}
 
-		// take real pointer to allocation
-		pointer = (DeleteType*)((char*)pointer - 1);
+		// delegate deallocation
+		if (numBytes <= MemoryManager::SOA_maxObjectSize)
+		{
+			// small
 
-		// deallocation
-		small_obj_alloc->Deallocate(pointer, sizeof(DeleteType) * length + 1);
+			small_obj_alloc->Deallocate(ptr, numBytes);
+		}
+		else
+		{
+			// big
+
+			big_obj_alloc->Deallocate(ptr, numBytes);
+		}
 
 		// make pointer null
 		pointer = nullptr;
@@ -222,6 +248,7 @@ public:
 	*/
 	static void* MM_Malloc(size_t size)
 	{
+		// delegate allocation
 		if (size <= MemoryManager::SOA_maxObjectSize)
 		{
 			// small
@@ -245,6 +272,7 @@ public:
 	*/
 	static void MM_Free(void* pointer, size_t size)
 	{
+		// delegate deallocation
 		if (size <= MemoryManager::SOA_maxObjectSize)
 		{
 			// small
@@ -279,6 +307,6 @@ private:
 size_t MemoryManager::BOA_sizeAllocation = 1024;
 size_t MemoryManager::BOA_startingObjectSize = 32;
 unsigned char MemoryManager::SOA_chunkSize = 255;
-size_t MemoryManager::SOA_maxObjectSize = 8;
+size_t MemoryManager::SOA_maxObjectSize = 32;
 BigObjectAllocator* MemoryManager::big_obj_alloc = nullptr;
 SmallObjectAllocator* MemoryManager::small_obj_alloc = nullptr;

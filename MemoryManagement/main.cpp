@@ -40,12 +40,10 @@ void main() {
 
 	//FixedAllocatorTest();
 
-	//MemoryManagerTest();
+	MemoryManagerTest();
 
 	//RBTreeTest();
-	BigObjectAllocatorTest();
-
-	std::cout << sizeof(size_t) << std::endl;
+	//BigObjectAllocatorTest();
 }
 
 
@@ -114,6 +112,8 @@ void RBTreeTest()
 
 void MemoryManagerTest()
 {
+	MemoryManager::Init();
+
 	int* p1 = MM_NEW(int);
 	MM_DELETE(int, p1);
 
