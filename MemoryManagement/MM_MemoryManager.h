@@ -1,9 +1,21 @@
-
 #pragma once
 
-#include <malloc.h>
+#include "SmallObjectAllocator.h"
+#include "BigObjectAllocator.h"
 
 #pragma region MACROS
+
+#ifdef GLOBAL_OVERLOAD
+
+#define MM_NEW(T) new T;
+
+#define MM_NEW_A(T, length) new T[length];
+
+#define MM_DELETE(pointer) delete pointer;
+
+#define MM_DELETE_A(pointer) delete[] pointer;
+
+#else
 
 #define MM_NEW(T) MemoryManager::MM_New<T>();
 
@@ -12,6 +24,8 @@
 #define MM_DELETE(T, pointer) MemoryManager::MM_Delete<T>(pointer);
 
 #define MM_DELETE_A(T, pointer) MemoryManager::MM_Delete_A<T>(pointer);
+
+#endif // !GLOBAL_OVERLOAD
 
 #define MM_MALLOC(size) MemoryManager::MM_Malloc(size);
 
@@ -38,24 +52,15 @@ public:
 	@brief
 	Init all the resources needed by the memory manager - needed at the start of the usage
 	*/
-	static void Init()
-	{
-		big_obj_alloc = (BigObjectAllocator*)malloc(sizeof(BigObjectAllocator));
-		new(big_obj_alloc) BigObjectAllocator(MemoryManager::BOA_sizeAllocation, MemoryManager::BOA_startingObjectSize);
-
-		small_obj_alloc = (SmallObjectAllocator*)malloc(sizeof(SmallObjectAllocator));
-		new(small_obj_alloc) SmallObjectAllocator(MemoryManager::SOA_chunkSize, MemoryManager::SOA_maxObjectSize);
-	}
+	static void Init();
 
 	/*
 	@brief
 	Free of all the resources owned by the memory manager - needed at the end of the usage
 	*/
-	static void Free()
-	{
-		delete small_obj_alloc;
-		small_obj_alloc = nullptr;
-	}
+	static void Free();
+
+#ifndef GLOBAL_OVERLOAD
 
 	/*
 	@brief
@@ -65,10 +70,10 @@ public:
 	static NewType* MM_New()
 	{
 		// delegate allocation
-		if (sizeof(NewType) <= MemoryManager::SOA_maxObjectSize)
+		if (sizeof(NewType) <= SOA_maxObjectSize)
 		{
 			// small
-			
+
 			// allocation
 			NewType* newPtr = (NewType*)small_obj_alloc->Allocate(sizeof(NewType));
 
@@ -110,7 +115,7 @@ public:
 		}
 
 		// delegate allocation
-		if (numBytes <= MemoryManager::SOA_maxObjectSize)
+		if (numBytes <= SOA_maxObjectSize)
 		{
 			// small
 
@@ -169,10 +174,10 @@ public:
 		pointer->~DeleteType();
 
 		// delegate deallocation
-		if (sizeof(DeleteType) <= MemoryManager::SOA_maxObjectSize)
+		if (sizeof(DeleteType) <= SOA_maxObjectSize)
 		{
 			// small
-			
+
 			// deallocation
 			small_obj_alloc->Deallocate(pointer, sizeof(DeleteType));
 		}
@@ -224,7 +229,7 @@ public:
 		}
 
 		// delegate deallocation
-		if (numBytes <= MemoryManager::SOA_maxObjectSize)
+		if (numBytes <= SOA_maxObjectSize)
 		{
 			// small
 
@@ -241,28 +246,14 @@ public:
 		pointer = nullptr;
 	}
 
+#endif // GLOBAL_OVERLOAD
+
 	/*
 	@brief
 	Allocation, using small object allocator or big object allocator
 	@param size: the size (in bytes) of memory to allocate
 	*/
-	static void* MM_Malloc(size_t size)
-	{
-		// delegate allocation
-		if (size <= MemoryManager::SOA_maxObjectSize)
-		{
-			// small
-
-			return small_obj_alloc->Allocate(size);
-		}
-		else
-		{
-			// big
-
-			return big_obj_alloc->Allocate(size);
-		}
-		
-	}
+	static void* MM_Malloc(size_t size);
 
 	/*
 	@brief
@@ -270,23 +261,7 @@ public:
 	@param pointer: pointer to the memory to deallocate
 	@param size: the size of the memory owned by the pointer
 	*/
-	static void MM_Free(void* pointer, size_t size)
-	{
-		// delegate deallocation
-		if (size <= MemoryManager::SOA_maxObjectSize)
-		{
-			// small
-
-			small_obj_alloc->Deallocate(pointer, size);
-		}
-		else
-		{
-			// big
-
-			big_obj_alloc->Deallocate(pointer, size);
-		}
-		
-	}
+	static void MM_Free(void* pointer, size_t size);
 
 private:
 
@@ -302,11 +277,3 @@ private:
 	static size_t SOA_maxObjectSize;
 
 };
-
-// static member needs definition
-size_t MemoryManager::BOA_sizeAllocation = 1024;
-size_t MemoryManager::BOA_startingObjectSize = 32;
-unsigned char MemoryManager::SOA_chunkSize = 255;
-size_t MemoryManager::SOA_maxObjectSize = 32;
-BigObjectAllocator* MemoryManager::big_obj_alloc = nullptr;
-SmallObjectAllocator* MemoryManager::small_obj_alloc = nullptr;

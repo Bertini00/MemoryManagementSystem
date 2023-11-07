@@ -1,19 +1,11 @@
 
-#include "Chunk.h"
-#include "FixedAllocator.h"
-#include "SmallObjectAllocator.h"
-#include "BigObjectAllocator.h"
-
-#include "MM_MemoryManager.hpp"
+#include "MM_GlobalOverload.h" // include this header to enable global operator new and operator delete overload -> it HAS to be included before MM_MemoryManager.h
+#include "MM_MemoryManager.h"
 
 #include "RedBlackTree/RBTree.h"
 
 #include <iostream>
 #include <chrono>
-
-#ifndef globalOverride
-#define globalOverride
-#endif // !globalOverride
 
 void ChunkTest();
 void FixedAllocatorTest();
@@ -114,6 +106,26 @@ void MemoryManagerTest()
 {
 	MemoryManager::Init();
 
+	int* x = new int;
+
+#ifdef GLOBAL_OVERLOAD
+
+	int* p1 = MM_NEW(int);
+	MM_DELETE(p1);
+
+	float* p2 = (float*)MM_MALLOC(sizeof(float));
+	MM_FREE(p2, sizeof(float));
+
+	int* a1 = MM_NEW_A(int, 3);
+	a1[0] = 1;
+	MM_DELETE_A(a1);
+
+	TestStruct* st = MM_NEW_A(TestStruct, 2);
+	st[0].value = 1;
+	MM_DELETE_A(st);
+
+#else
+
 	int* p1 = MM_NEW(int);
 	MM_DELETE(int, p1);
 
@@ -127,6 +139,8 @@ void MemoryManagerTest()
 	TestStruct* st = MM_NEW_A(TestStruct, 2);
 	st[0].value = 1;
 	MM_DELETE_A(TestStruct, st);
+
+#endif // GLOBAL_OVERLOAD
 
 	MemoryManager::Free();
 }

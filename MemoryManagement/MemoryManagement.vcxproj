@@ -137,9 +137,9 @@
     <ClInclude Include="BOA_Block.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="FixedAllocator.h" />
-    <ClInclude Include="MM_MemoryManager.hpp" />
-    <ClInclude Include="SmallObjectAllocator.h" />
     <ClInclude Include="MM_GlobalOverload.h" />
+    <ClInclude Include="MM_MemoryManager.h" />
+    <ClInclude Include="SmallObjectAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BigObjectAllocator.cpp" />
@@ -147,8 +147,8 @@
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="FixedAllocator.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MM_MemoryManager.cpp" />
     <ClCompile Include="SmallObjectAllocator.cpp" />
-    <ClCompile Include="MM_GlobalOverload.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
