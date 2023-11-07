@@ -2,8 +2,12 @@
 #include <assert.h>
 #include <iostream>
 
-FixedAllocator::FixedAllocator(size_t blockSize, unsigned char numBlocks) :blockSize_(blockSize), numBlocks_(numBlocks) {
-}
+FixedAllocator::FixedAllocator(size_t blockSize, unsigned char numBlocks)
+	: blockSize_(blockSize)
+	, numBlocks_(numBlocks)
+	, allocChunk_(nullptr)
+	, deallocChunk_(nullptr)
+{}
 
 void* FixedAllocator::Allocate() {
 	if (allocChunk_ == 0 || allocChunk_->blocksAvailable_ == 0)

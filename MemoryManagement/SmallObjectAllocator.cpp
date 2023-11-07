@@ -2,11 +2,12 @@
 #include <algorithm>
 
 
-SmallObjectAllocator::SmallObjectAllocator(unsigned char chunkSize, std::size_t maxObjectSize):chunkSize_(chunkSize), maxObjectSize_(maxObjectSize)
-{
-}
-
-
+SmallObjectAllocator::SmallObjectAllocator(unsigned char chunkSize, std::size_t maxObjectSize)
+	: chunkSize_(chunkSize)
+	, maxObjectSize_(maxObjectSize)
+	, pLastAlloc_(nullptr)
+	, pLastDealloc_(nullptr)
+{}
 
 void SmallObjectAllocator::Deallocate(void* p, size_t size) {
 
@@ -57,11 +58,7 @@ void SmallObjectAllocator::Deallocate(void* p, size_t size) {
 			pLastDealloc_ = pb;
 			return;
 		}
-
-
-		
 	}
-
 }
 
 void* SmallObjectAllocator::Allocate(std::size_t numBytes) {

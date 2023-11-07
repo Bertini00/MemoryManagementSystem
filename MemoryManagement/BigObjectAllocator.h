@@ -1,16 +1,7 @@
 #pragma once
 
-#include <vector>
-
 #include "BOA_Block.h"
 #include <RedBlackTree/RBTree.h>
-
-enum FitType
-{
-	BEST_FIT,
-	WORST_FIT,
-	FIRST_FIT
-};
 
 class BigObjectAllocator
 {
@@ -23,10 +14,10 @@ public:
 	* @param startingObjectSize The minimum size of the object to be allocated, any less than this gets redirected to the SOA
 	* @param fitType The type of fit of the allocator
 	*/
-	BigObjectAllocator(size_t sizeAlloc, std::size_t startingObjectSize, FitType fitType = BEST_FIT);
+	BigObjectAllocator(size_t sizeAlloc, std::size_t startingObjectSize);
 
 	/*
-	* Destroys the Allocator
+	* Destroys the Allocator and its resources
 	*/
 	~BigObjectAllocator();
 
@@ -47,19 +38,17 @@ public:
 	*/
 	void Deallocate(void* p, std::size_t size);
 
+private:
+
 	/*
 	* Joins near block of the block just passed to merge all of them into one
-	* 
+	*
 	* @param block The block just deallocated
 	*/
-	void joinNearBlocks(BOA_Block* block);
+	void JoinNearBlocks(BOA_Block* block);
 
-
-
-private:
 	size_t sizeAlloc_;
 	size_t startingObjectSize_;
-	FitType fitType_;
 
 	unsigned char* tail_;
 

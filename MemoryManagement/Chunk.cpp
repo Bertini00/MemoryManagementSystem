@@ -1,8 +1,9 @@
 #include "Chunk.h"
+#include <malloc.h>
 
-
-void Chunk::Init(size_t blockSize, unsigned char blocks) {
-	pData_ = new unsigned char[blockSize * blocks];
+void Chunk::Init(size_t blockSize, unsigned char blocks)
+{
+	pData_ = (unsigned char*)malloc(blockSize * blocks);
 	firstAvailableBlock_ = 0;
 	blocksAvailable_ = blocks;
 	unsigned char i = 0;
@@ -43,4 +44,9 @@ void Chunk::Deallocate(void* p, size_t blockSize) {
 	++blocksAvailable_;
 
 	return;
+}
+
+Chunk::~Chunk()
+{
+	free(pData_);
 }
