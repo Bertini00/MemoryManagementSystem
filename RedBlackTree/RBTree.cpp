@@ -2,6 +2,7 @@
 #include "pch.h"
 
 #include <iostream>
+#include <malloc.h>
 
 #include "RBTree.h"
 
@@ -12,7 +13,8 @@
 
 RBTree::RBTree()
 {
-    nullnode = new RBNode();
+    nullnode = (RBNode*)malloc(sizeof(RBNode));
+    new(nullnode) RBNode();
     nullnode->color = RBColor::Black;
     nullnode->parent = nullptr;
     nullnode->left = nullptr;
@@ -362,7 +364,8 @@ void RBTree::Insert(size_t key, void* value)
     if (this->root == nullnode)
     {
         // black node as first
-        this->root = new RBNode(RBColor::Black, key, value, this->nullnode);
+        this->root = (RBNode*)malloc(sizeof(RBNode));
+        new(this->root) RBNode(RBColor::Black, key, value, this->nullnode);
 
         return;
     }
@@ -389,12 +392,14 @@ void RBTree::Insert(size_t key, void* value)
     // create new node
     if (node->key < key)
     {
-        node->right = new RBNode(RBColor::Red, key, value, this->nullnode);
+        node->right = (RBNode*)malloc(sizeof(RBNode));
+        new(node->right) RBNode(RBColor::Red, key, value, this->nullnode);
         newNode = node->right;
     }
     else
     {
-        node->left = new RBNode(RBColor::Red, key, value, this->nullnode);
+        node->left = (RBNode*)malloc(sizeof(RBNode));
+        new(node->left) RBNode(RBColor::Red, key, value, this->nullnode);
         newNode = node->left;
     }
 
@@ -470,7 +475,7 @@ void RBTree::DeleteNode(RBNode* node)
         y->color = node->color;
     }
 
-    delete node;
+    free(node);
 
     if (y_original_color == RBColor::Black)
     {
@@ -538,11 +543,11 @@ RBTree::~RBTree()
         }
 
         // delete leaf
-        delete next;
+        free(next);
 
         // restart from parent
         next = parent;
     }
 
-    delete this->nullnode;
+    free(this->nullnode);
 }
