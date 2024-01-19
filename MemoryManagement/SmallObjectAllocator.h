@@ -22,7 +22,7 @@ private:
 	size_t maxObjectSize_;
 
 
-	std::vector<FixedAllocator> pool_;
+	std::vector<FixedAllocator, Mallocator<FixedAllocator>> pool_;
 	FixedAllocator* pLastAlloc_; 
 	FixedAllocator* pLastDealloc_;
 };

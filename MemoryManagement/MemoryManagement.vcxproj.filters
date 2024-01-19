@@ -36,6 +36,9 @@
     <ClInclude Include="MM_GlobalOverload.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mallocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Chunk.cpp">

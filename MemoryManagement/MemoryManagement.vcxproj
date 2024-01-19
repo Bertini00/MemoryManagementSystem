@@ -137,6 +137,7 @@
     <ClInclude Include="BOA_Block.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="FixedAllocator.h" />
+    <ClInclude Include="Mallocator.h" />
     <ClInclude Include="MM_GlobalOverload.h" />
     <ClInclude Include="MM_MemoryManager.h" />
     <ClInclude Include="SmallObjectAllocator.h" />

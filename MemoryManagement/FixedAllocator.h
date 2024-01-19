@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "Chunk.h"
+#include "Mallocator.h"
 
 class FixedAllocator
 {
@@ -17,7 +18,7 @@ private:
 	size_t blockSize_;
 	unsigned char numBlocks_;
 
-	typedef std::vector<Chunk> Chunks;
+	typedef std::vector<Chunk, Mallocator<Chunk>> Chunks;
 
 	Chunks chunks_;
 	Chunk* allocChunk_;
