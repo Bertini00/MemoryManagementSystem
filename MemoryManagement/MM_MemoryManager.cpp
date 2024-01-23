@@ -22,9 +22,13 @@ void MemoryManager::Init()
 
 void MemoryManager::Free()
 {
+	// call Free on BOA and free memory
+	big_obj_alloc->Free();
 	free(big_obj_alloc);
 	big_obj_alloc = nullptr;
 
+	// call Free on SOA and free memory
+	small_obj_alloc->Free();
 	free(small_obj_alloc);
 	small_obj_alloc = nullptr;
 }

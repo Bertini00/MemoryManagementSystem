@@ -25,7 +25,7 @@ BigObjectAllocator::BigObjectAllocator(size_t sizeAlloc, std::size_t startingObj
 	rbTree->Insert(sizeAlloc, pointer);
 }
 
-BigObjectAllocator::~BigObjectAllocator()
+void BigObjectAllocator::Free()
 {
 	// destructor and free because the tree was created with malloc
 	rbTree->~RBTree();

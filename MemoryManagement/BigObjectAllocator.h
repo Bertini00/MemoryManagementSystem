@@ -17,9 +17,9 @@ public:
 	BigObjectAllocator(size_t sizeAlloc, std::size_t startingObjectSize);
 
 	/*
-	* Destroys the Allocator and its resources
+	* Frees all the resources of the BOA
 	*/
-	~BigObjectAllocator();
+	void Free();
 
 	/*
 	* Returns a void pointer to the chunk just allocated

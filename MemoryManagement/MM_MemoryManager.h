@@ -98,7 +98,7 @@ public:
 
 	/*
 	@brief
-	Class-specific array allocation and constructor call, using small object allocator
+	Class-specific array allocation and constructor call, using small object allocator or big object allocator
 	@param length: the length of the array to allocate
 	*/
 	template<class NewType>
@@ -194,7 +194,7 @@ public:
 
 	/*
 	@brief
-	Class-specific array deallocation and destructor call, using small object allocator
+	Class-specific array deallocation and destructor call, using small object allocator or big object allocator
 	@param pointer: the array pointer to deallocate
 	*/
 	template<class DeleteType>
@@ -262,6 +262,99 @@ public:
 	@param size: the size of the memory owned by the pointer
 	*/
 	static void MM_Free(void* pointer, size_t size);
+
+	/*
+	@brief
+	Generic array allocation without constructor call, using small object allocator or big object allocator
+	@param length: the length of the array to allocate
+	*/
+	static void* MM_New_A(size_t numBytes)
+	{
+		if (numBytes <= 255)
+		{
+			numBytes += 2; // size of unsigned char for metadata size info + size of another unsigned char for actual size
+		}
+		else
+		{
+			numBytes += 1 + sizeof(size_t); // size of unsigned char for metadata size info + size of size_t for actual size
+		}
+
+		// delegate allocation
+		if (numBytes <= SOA_maxObjectSize)
+		{
+			// small
+
+			// allocation
+			unsigned char* ptr = (unsigned char*)small_obj_alloc->Allocate(numBytes);
+
+			// write metadata at the beginning of the pointer
+			*ptr = (unsigned char)numBytes; // taken as unsigned char because for longer arrays -> the allocation will be taken from the BOA
+			*(ptr + 1) = 1; // size of unsigned char (metadata size)
+
+			// return correct pointer
+			return (void*)(ptr + 2);
+		}
+		else
+		{
+			// big
+
+			// allocation
+			unsigned char* ptr = (unsigned char*)big_obj_alloc->Allocate(numBytes);
+
+			// write metadata at the beginning of the pointer
+			*(size_t*)ptr = numBytes;
+			*(ptr + 1) = sizeof(size_t); // size of size_t (metadata size)
+
+			// return correct pointer
+			void* newPtr = (void*)(ptr + sizeof(size_t) + 1);
+
+			return newPtr;
+		}
+	}
+
+	/*
+	@brief
+	Generic array deallocation without destructor call, using small object allocator or big object allocator
+	@param pointer: the array pointer to deallocate
+	*/
+	static void MM_Delete_A(void* pointer)
+	{
+		// take array size from metadata
+		unsigned char* ptr = (unsigned char*)pointer;
+		unsigned char metaSize = *(ptr - 1); // metadata size
+		ptr = ptr - 1 - metaSize; // move ptr to actual array size data -> pointer to actual allocation
+
+		size_t numBytes; // it is the actual size to deallocate (including metadata)
+		if (metaSize == 1)
+		{
+			// size as unsigned char
+
+			numBytes = *(ptr);
+		}
+		else
+		{
+			// size as size_t
+
+			numBytes = *((size_t*)ptr);
+		}
+
+		// delegate deallocation
+		if (numBytes <= SOA_maxObjectSize)
+		{
+			// small
+
+			small_obj_alloc->Deallocate(ptr, numBytes);
+		}
+		else
+		{
+			// big
+
+			big_obj_alloc->Deallocate(ptr, numBytes);
+		}
+
+		// make pointer null
+		pointer = nullptr;
+	}
 
 private:
 

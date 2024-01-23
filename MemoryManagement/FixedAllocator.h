@@ -14,6 +14,11 @@ public:
 
 	size_t GetBlockSize();
 
+	/*
+	* Frees all the resources of the FixedAllocator
+	*/
+	void Free();
+
 private:
 	size_t blockSize_;
 	unsigned char numBlocks_;

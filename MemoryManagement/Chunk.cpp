@@ -46,7 +46,7 @@ void Chunk::Deallocate(void* p, size_t blockSize) {
 	return;
 }
 
-Chunk::~Chunk()
+void Chunk::Free()
 {
 	free(pData_);
 }

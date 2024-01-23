@@ -127,3 +127,11 @@ void* SmallObjectAllocator::Allocate(std::size_t numBytes) {
 	return pLastAlloc_->Allocate();
 
 }
+
+void SmallObjectAllocator::Free()
+{
+	for (auto& alloc : pool_)
+	{
+		alloc.Free();
+	}
+}

@@ -92,8 +92,16 @@ void FixedAllocator::Deallocate(void* p) {
 	}
 }
 
-
 size_t FixedAllocator::GetBlockSize() {
 	// Return the block size of the Fixed Allocator
 	return blockSize_;
+}
+
+void FixedAllocator::Free()
+{
+	// free all the chunks
+	for (auto& chunk : chunks_)
+	{
+		chunk.Free();
+	}
 }

@@ -12,6 +12,7 @@ void FixedAllocatorTest();
 void SmallObjectAllocatorTest();
 void MemoryManagerTest();
 void RBTreeTest();
+void BigObjectAllocatorTest();
 
 struct TestStruct
 {
@@ -22,7 +23,6 @@ struct TestStruct
 		value = 0;
 	}
 };
-void BigObjectAllocatorTest();
 
 void main() {
 
@@ -107,6 +107,9 @@ void MemoryManagerTest()
 	MemoryManager::Init();
 
 	int* x = new int;
+
+	/*TestStruct* testt = new TestStruct[3];
+	delete[] testt;*/
 
 #ifdef GLOBAL_OVERLOAD
 

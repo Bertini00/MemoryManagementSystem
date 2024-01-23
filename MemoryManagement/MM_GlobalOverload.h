@@ -27,4 +27,24 @@ void operator delete(void* pointer, size_t size)
 	MemoryManager::MM_Free(pointer, size);
 }
 
+/*
+* This is the global new[] operator overload.
+* It is called when the user calls new.
+* @param size_t size - The size of the object to be allocated.
+*/
+void* operator new[](size_t size)
+{
+	return MemoryManager::MM_New_A(size);
+}
+
+/*
+* This is the global delete[] operator overload.
+* It is called when the user calls delete.
+* @param void* pointer - The pointer to the object to be deleted.
+*/
+void operator delete[](void* pointer)
+{
+	MemoryManager::MM_Delete_A(pointer);
+}
+
 #endif // GLOBAL_OVERLOAD

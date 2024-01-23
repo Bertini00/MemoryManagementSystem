@@ -17,6 +17,11 @@ public:
 	void* Allocate(std::size_t numBytes); 
 	void Deallocate(void* p, std::size_t size);
 
+	/*
+	* Frees all the resources of the SOA
+	*/
+	void Free();
+
 private:
 	unsigned char chunkSize_;
 	size_t maxObjectSize_;
