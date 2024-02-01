@@ -1,5 +1,7 @@
 #pragma once
 
+// this allocator is based only on malloc and free -> no new or delete
+
 #include <stdlib.h>
 #include <new>
 #include <limits>
