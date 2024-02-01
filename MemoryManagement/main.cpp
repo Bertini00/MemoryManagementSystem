@@ -24,20 +24,59 @@ struct TestStruct
 	}
 };
 
-void main() {
-
-
-	//SmallObjectAllocatorTest();
-	//FixedAllocatorTest();
-
-	//FixedAllocatorTest();
-
+void main()
+{
 	MemoryManagerTest();
-
-	//RBTreeTest();
-	//BigObjectAllocatorTest();
 }
 
+void MemoryManagerTest()
+{
+	MemoryManager::Init();
+
+#ifdef GLOBAL_OVERLOAD
+
+	// allocation using memory manager functions with overloaded new and delete
+
+	// it uses our memory manager
+	int* p1 = new int;
+	delete p1;
+
+	float* p2 = (float*)MM_MALLOC(sizeof(float));
+	MM_FREE(p2, sizeof(float));
+
+	int* a1 = MM_NEW_A(int, 3);
+	a1[0] = 1;
+	MM_DELETE_A(a1);
+
+	TestStruct* st = MM_NEW_A(TestStruct, 2);
+	st[0].value = 1;
+	MM_DELETE_A(st);
+
+#else
+
+	// allocation using memory manager functions without overloaded new and delete
+
+	// it doesn't use our memory manager
+	int* p1 = new int;
+	delete p1;
+
+	float* p2 = (float*)MM_MALLOC(sizeof(float));
+	MM_FREE(p2, sizeof(float));
+
+	int* a1 = MM_NEW_A(int, 3);
+	a1[0] = 1;
+	MM_DELETE_A(int, a1);
+
+	TestStruct* st = MM_NEW_A(TestStruct, 2);
+	st[0].value = 1;
+	MM_DELETE_A(TestStruct, st);
+
+#endif // GLOBAL_OVERLOAD
+
+	MemoryManager::Free();
+}
+
+#pragma region TESTING
 
 void RBTreeTest()
 {
@@ -100,52 +139,6 @@ void RBTreeTest()
 	tree.Print();
 
 #pragma endregion 1
-}
-
-void MemoryManagerTest()
-{
-	MemoryManager::Init();
-
-	int* x = new int;
-
-	/*TestStruct* testt = new TestStruct[3];
-	delete[] testt;*/
-
-#ifdef GLOBAL_OVERLOAD
-
-	int* p1 = MM_NEW(int);
-	MM_DELETE(p1);
-
-	float* p2 = (float*)MM_MALLOC(sizeof(float));
-	MM_FREE(p2, sizeof(float));
-
-	int* a1 = MM_NEW_A(int, 3);
-	a1[0] = 1;
-	MM_DELETE_A(a1);
-
-	TestStruct* st = MM_NEW_A(TestStruct, 2);
-	st[0].value = 1;
-	MM_DELETE_A(st);
-
-#else
-
-	int* p1 = MM_NEW(int);
-	MM_DELETE(int, p1);
-
-	float* p2 = (float*)MM_MALLOC(sizeof(float));
-	MM_FREE(p2, sizeof(float));
-
-	int* a1 = MM_NEW_A(int, 3);
-	a1[0] = 1;
-	MM_DELETE_A(int, a1);
-
-	TestStruct* st = MM_NEW_A(TestStruct, 2);
-	st[0].value = 1;
-	MM_DELETE_A(TestStruct, st);
-
-#endif // GLOBAL_OVERLOAD
-
-	MemoryManager::Free();
 }
 
 void ChunkTest() {
@@ -219,3 +212,5 @@ void BigObjectAllocatorTest() {
 
 	i = (int*)boa.Allocate(sizeof(int));
 }
+
+#pragma endregion
